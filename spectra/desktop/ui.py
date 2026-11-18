@@ -132,8 +132,7 @@ def rule():
 def heading(text, symbol):
     box = layout(row=True, gap=8)
     box.addWidget(glyph(symbol, ACCENT))
-    box.addWidget(label(text, "section"))
-    box.addStretch()
+    box.addWidget(label(text, "section", wrap=True), 1)
     return box
 
 

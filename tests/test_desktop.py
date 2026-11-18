@@ -38,12 +38,13 @@ class NativeUiTests(unittest.TestCase):
         self.tmp = TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
 
-    def until(self, predicate):
+    def until(self, predicate, diagnostics=None):
         deadline = time.monotonic() + 8
         while not predicate() and time.monotonic() < deadline:
             self.app.processEvents()
             QTest.qWait(5)
-        self.assertTrue(predicate(), "Qt worker did not finish")
+        if not predicate():
+            self.fail(diagnostics() if diagnostics else "Timed out waiting for the Qt event loop")
 
     def open(self, factory=None, *, wait=True):
         w = Window(factory or (lambda: Studio(demo=True, directory=self.tmp.name)))
@@ -205,10 +206,33 @@ class NativeUiTests(unittest.TestCase):
         w.resize(625, 540)
         self.app.processEvents()
         self.assertTrue(w.workspace.compact)
-        self.until(lambda: w.scroll.horizontalScrollBar().maximum() == 0)
+
+        def widths():
+            parts = {
+                "page": w.scroll.widget(),
+                "left": w.workspace.left,
+                "form": w.workspace.form,
+                "card": w.workspace.devices[0],
+                "title": w.title,
+                "scan": w.scan,
+            }
+            hints = {key: widget.minimumSizeHint().width() for key, widget in parts.items()}
+            return f"Viewport: {w.scroll.viewport().width()}, minimum widths: {hints}"
+
+        self.until(lambda: w.scroll.horizontalScrollBar().maximum() == 0, widths)
+        grid = w.workspace.devices_grid
+        self.assertIs(grid.itemAtPosition(1, 0).widget(), w.workspace.devices[1])
         self.assertGreater(w.scroll.verticalScrollBar().maximum(), 0)
         w.scroll.ensureWidgetVisible(w.workspace.apply)
         self.assertFalse(w.workspace.apply.visibleRegion().isEmpty())
+        # The hidden calibration form should not extend the empty history page.
+        calibration_overflow = w.scroll.verticalScrollBar().maximum()
+        w.switch_page(1)
+        self.until(lambda: w.scroll.verticalScrollBar().maximum() < calibration_overflow)
+        w.switch_page(0)
+        w.resize(1160, 760)
+        self.until(lambda: not w.workspace.compact)
+        self.assertIs(grid.itemAtPosition(0, 1).widget(), w.workspace.devices[1])
 
     def test_preview_luts_are_interpolated_and_clamped(self):
         self.assertEqual(lut([0, 1], 1), bytes(range(256)))

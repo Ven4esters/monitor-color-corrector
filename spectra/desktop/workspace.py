@@ -30,6 +30,7 @@ class Workspace(QWidget):
         self.busy = True
         self.profile = "standard"
         self.devices = []
+        self.device_columns = 2
         self.compact = False
         self.last_preview = self.pending_preview = None
         self.columns = QBoxLayout(QBoxLayout.Direction.LeftToRight, self)
@@ -194,7 +195,16 @@ class Workspace(QWidget):
         self.hint = label("Изменения пока только в предпросмотре.", "dimSmall", wrap=True)
         box.addWidget(self.hint)
 
-    def set_compact(self, narrow):
+    def fit_width(self, width):
+        # Stack cards too, not just the two main panels. In larger system fonts,
+        # model names, percentages and modes cannot share a narrow half-width card.
+        columns = 1 if width < 720 else 2
+        if columns != self.device_columns:
+            self.device_columns = columns
+            for i, card in enumerate(self.devices):
+                self.devices_grid.removeWidget(card)
+                self.devices_grid.addWidget(card, i // columns, i % columns)
+        narrow = width < 980
         if self.compact == narrow:
             return
         self.compact = narrow
@@ -259,7 +269,7 @@ class Workspace(QWidget):
             )
             card.setAccessibleDescription(f"{details}; яркость: {level_text}")
             card.clicked.connect(lambda _, key=m["id"]: self.pick_device(key))
-            self.devices_grid.addWidget(card, i // 2, i % 2)
+            self.devices_grid.addWidget(card, i // self.device_columns, i % self.device_columns)
             self.devices.append(card)
         self.count.setText(f"{len(ids):02d}")
         self.no_devices.setVisible(not ids)

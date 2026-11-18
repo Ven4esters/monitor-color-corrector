@@ -13,7 +13,6 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QProgressBar,
     QScrollArea,
-    QStackedWidget,
     QTableWidget,
     QTableWidgetItem,
     QWidget,
@@ -151,7 +150,7 @@ class Window(QMainWindow):
         intro = layout(row=True, gap=8)
         titles = layout(gap=1)
         titles.addWidget(label("РАБОЧАЯ ОБЛАСТЬ   /   DISPLAY LAB", "kicker"))
-        self.title = label("Калибровка мониторов", "title")
+        self.title = label("Калибровка мониторов", "title", wrap=True)
         self.sub = label("Единый цвет и яркость для ваших дисплеев.", "secondary", wrap=True)
         titles.addWidget(self.title)
         titles.addWidget(self.sub)
@@ -165,12 +164,16 @@ class Window(QMainWindow):
         self.alert = label("", "warning", wrap=True)
         self.alert.hide()
         body.addWidget(self.alert)
-        self.stack = QStackedWidget()
+        # A stacked layout sizes itself to *all* pages. In a scroll area that
+        # leaves an empty history as tall/wide as the hidden calibration form.
+        self.pages = QWidget()
+        pages_box = layout(self.pages, gap=0)
         self.workspace = Workspace()
         self.history = History()
-        self.stack.addWidget(self.workspace)
-        self.stack.addWidget(self.history)
-        body.addWidget(self.stack, 1)
+        pages_box.addWidget(self.workspace)
+        pages_box.addWidget(self.history)
+        self.history.hide()
+        body.addWidget(self.pages, 1)
         self.nav.idClicked.connect(self.switch_page)
         self.scroll.setWidget(page)
         shell.addWidget(self.scroll, 1)
@@ -215,7 +218,8 @@ class Window(QMainWindow):
 
     def switch_page(self, i):
         self.tabs[i].setChecked(True)
-        self.stack.setCurrentIndex(i)
+        self.workspace.setVisible(i == 0)
+        self.history.setVisible(i == 1)
         self.title.setText("Калибровка мониторов" if i == 0 else "История изменений")
         self.sub.setText(
             "Единый цвет и яркость для ваших дисплеев."
@@ -227,7 +231,7 @@ class Window(QMainWindow):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         if hasattr(self, "workspace"):
-            self.workspace.set_compact(self.width() < 980)
+            self.workspace.fit_width(self.width())
             self.brand_tag.setVisible(self.width() >= 730)
             self.scan.setText("Обновить устройства" if self.width() > 760 else "Обновить")
 

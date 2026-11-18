@@ -1,6 +1,6 @@
 QWidget { color: #eeedf3; }
-QMainWindow, QWidget#root, QStackedWidget, QWidget#page, QScrollArea, QScrollArea > QWidget > QWidget { background: #121216; }
-QScrollArea, QStackedWidget { border: 0; }
+QMainWindow, QWidget#root, QWidget#page, QScrollArea, QScrollArea > QWidget > QWidget { background: #121216; }
+QScrollArea { border: 0; }
 QFrame#header, QFrame#footer { background: #19191e; }
 QFrame#header { border-bottom: 1px solid #34313a; }
 QFrame#footer { border-top: 1px solid #34313a; }
