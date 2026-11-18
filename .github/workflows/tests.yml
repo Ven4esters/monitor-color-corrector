@@ -28,11 +28,22 @@ jobs:
           python -m spectra.desktop --check
           python -m unittest discover -v
       - name: Install with the batch launcher from a different working directory
+        id: checkout_launcher
         if: runner.os == 'Windows'
         run: python .github/scripts/check_launcher.py checkout
-      - name: Run the native tests in the provisioned environment
-        if: runner.os == 'Windows'
-        run: .venv/Scripts/python.exe -m unittest discover -v
       - name: Download and reuse the app from just one .bat file
         if: runner.os == 'Windows' && !github.event.repository.private
         run: python .github/scripts/check_launcher.py standalone
+      - name: Run the native tests in the provisioned environment
+        if: ${{ !cancelled() && runner.os == 'Windows' && steps.checkout_launcher.outcome == 'success' }}
+        shell: pwsh
+        run: |
+          $log = & .\.venv\Scripts\python.exe -m unittest discover -v 2>&1
+          $rc = $LASTEXITCODE
+          $log | ForEach-Object { Write-Host $_ }
+          if ($rc -ne 0) {
+            $tail = ($log | Select-Object -Last 26) -join "`n"
+            $message = $tail.Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
+            Write-Host "::error title=Windows test diagnostics::$message"
+            exit $rc
+          }
