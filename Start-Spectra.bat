@@ -12,8 +12,8 @@ set "PIP_REQUIRE_VIRTUALENV=true"
 set "VPY=.venv\Scripts\python.exe"
 set "CHECK312=import struct, sys; sys.exit(not (sys.version_info[:2] == (3, 12) and struct.calcsize('P') == 8))"
 set "TRIED_WINGET="
-set "REV=4d3000f6d79bcf2ca72fdf2c1f8e269c3d15f474"
-set "APP_VERSION=1.1.0"
+set "REV=105d52141255d06e6d49fc6d1aa2962f89cb3a9c"
+set "APP_VERSION=1.1.1"
 set "QT_VERSION=6.10.3"
 echo Spectra Studio  /  Desktop
 if exist "%VPY%" goto check_env
@@ -82,7 +82,7 @@ if not errorlevel 1 goto pip_ready
 "%VPY%" -I -X utf8 -m ensurepip --upgrade
 if errorlevel 1 goto install_failed
 :pip_ready
-"%VPY%" -I -X utf8 -m pip install --disable-pip-version-check --only-binary=PySide6-Essentials,shiboken6 %EDITABLE% "%SPEC%"
+"%VPY%" -I -X utf8 -m pip install --force-reinstall --disable-pip-version-check --only-binary=PySide6-Essentials,shiboken6 %EDITABLE% "%SPEC%"
 if errorlevel 1 goto install_failed
 call :verify
 if errorlevel 1 goto install_failed
