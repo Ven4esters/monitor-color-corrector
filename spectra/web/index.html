@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#111114" />
+    <meta
+      name="description"
+      content="Spectra Studio — локальная рабочая область для согласования цвета и яркости мониторов."
+    />
+    <title>Калибровка мониторов · Spectra Studio</title>
+    <link rel="icon" href="/assets/brand.svg" type="image/svg+xml" />
+    <link
+      rel="preload"
+      href="/assets/fonts/manrope-cyrillic-wght-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="/studio.css" />
+    <script src="/studio.js" type="module"></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Перейти к рабочей области</a>
+    <header class="appbar">
+      <div class="container topbar">
+        <a class="brand" href="#calibration" aria-label="Spectra Studio — главная"
+          ><img src="/assets/brand.svg" width="35" height="35" alt="" /><span>Spectra</span
+          ><small>STUDIO</small></a
+        >
+        <nav class="navigation" aria-label="Основная навигация">
+          <a href="#calibration" class="nav-item active" data-page="calibration"
+            ><i data-icon="sliders"></i>Калибровка</a
+          >
+          <a href="#profiles" class="nav-item" data-page="profiles"
+            ><i data-icon="layers"></i>Профили</a
+          >
+          <a href="#history" class="nav-item" data-page="history"
+            ><i data-icon="history"></i>История</a
+          >
+        </nav>
+        <div class="top-tools">
+          <button type="button" class="mode-pill" id="mode" aria-label="О режиме подключения">
+            <span class="status-dot"></span><span id="mode-name">Подключение</span>
+          </button>
+          <span class="tool-separator"></span>
+          <button
+            type="button"
+            class="icon-button help"
+            id="help"
+            aria-label="Справка о калибровке"
+            title="Справка"
+          >
+            <i data-icon="help"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+    <main class="container" id="main">
+      <div class="page-intro">
+        <div>
+          <div class="eyebrow">
+            <span class="eyebrow-line"></span><span id="eyebrow">РАБОЧАЯ ОБЛАСТЬ</span>
+          </div>
+          <h1 id="page-title">Калибровка мониторов</h1>
+          <p id="page-description">Единый цвет и яркость для ваших дисплеев.</p>
+        </div>
+        <button
+          type="button"
+          class="secondary-button scan-button"
+          id="scan"
+          aria-label="Обновить устройства"
+        >
+          <i data-icon="refresh"></i><span>Обновить устройства</span>
+        </button>
+      </div>
+      <div id="warning" class="warning" role="alert" hidden></div>
+      <section id="calibration-page" aria-label="Рабочая область калибровки" class="workspace">
+        <div class="visual-column">
+          <section class="devices" aria-labelledby="devices-heading">
+            <div class="section-heading">
+              <div class="heading-group">
+                <i data-icon="monitors"></i>
+                <h2 id="devices-heading">Подключённые мониторы</h2>
+                <span class="count" id="device-count">—</span>
+              </div>
+              <span class="sync-state" id="sync-state"
+                ><i data-icon="link"></i><span>Синхронно</span></span
+              >
+            </div>
+            <div class="device-grid" id="device-list" aria-label="Выбрать мониторы"></div>
+          </section>
+          <section class="panel preview-panel" aria-labelledby="preview-heading">
+            <div class="panel-heading">
+              <div class="heading-group">
+                <i data-icon="split"></i>
+                <h2 id="preview-heading">Предпросмотр</h2>
+              </div>
+              <label class="switch-label" for="compare"
+                >До / после<span class="switch"
+                  ><input type="checkbox" id="compare" checked /><span></span></span
+              ></label>
+            </div>
+            <div class="preview-body" id="preview-home">
+              <div class="comparison" id="comparison" style="--split: 48%">
+                <div class="art-layer art-after" aria-hidden="true"></div>
+                <div class="art-layer art-before" aria-hidden="true"></div>
+                <span class="image-tag tag-before"><span></span>До</span
+                ><span class="image-tag tag-after"><span></span>После</span>
+                <span class="split-line" aria-hidden="true"
+                  ><span class="split-grip"><i data-icon="arrows"></i></span
+                ></span>
+                <input
+                  type="range"
+                  id="split"
+                  class="split-input"
+                  min="0"
+                  max="100"
+                  value="48"
+                  aria-label="Положение разделителя до и после"
+                />
+              </div>
+            </div>
+            <div class="preview-toolbar">
+              <div class="scene-picker">
+                <i data-icon="image"></i
+                ><select id="scene" aria-label="Тестовое изображение">
+                  <option value="lake">Альпийское озеро</option>
+                  <option value="colors">Цветовая шкала</option>
+                  <option value="gray">Градации серого</option></select
+                ><i data-icon="chevron-down"></i>
+              </div>
+              <div class="preview-actions">
+                <span class="ref-label" id="preview-ref">ДИСПЛЕЙ 01</span
+                ><span class="mini-divider"></span
+                ><button
+                  type="button"
+                  id="expand"
+                  class="icon-button"
+                  aria-label="Развернуть предпросмотр"
+                  title="Развернуть предпросмотр"
+                >
+                  <i data-icon="expand"></i>
+                </button>
+              </div>
+            </div>
+          </section>
+          <section class="readouts" aria-label="Целевые параметры выбранного профиля">
+            <div class="readout">
+              <div class="readout-label"><i data-icon="thermometer"></i>Белая точка</div>
+              <div class="readout-value">
+                <span id="readout-kelvin">6500</span><small>K</small
+                ><span class="white-tag" id="readout-white">D65</span>
+              </div>
+            </div>
+            <div class="readout">
+              <div class="readout-label"><i data-icon="curve"></i>Гамма</div>
+              <div class="readout-value" id="readout-gamma">2.2</div>
+            </div>
+            <div class="readout">
+              <div class="readout-label"><i data-icon="palette"></i>Цветовой ориентир</div>
+              <div class="readout-value">
+                <span id="readout-space">sRGB</span
+                ><span class="spectrum" aria-hidden="true"></span>
+              </div>
+            </div>
+          </section>
+        </div>
+        <section class="panel settings-panel" aria-labelledby="settings-heading">
+          <div class="panel-heading settings-heading">
+            <div class="heading-group">
+              <span class="settings-icon"><i data-icon="sliders"></i></span>
+              <h2 id="settings-heading">Параметры коррекции</h2>
+            </div>
+          </div>
+          <div class="settings-content">
+            <div class="field-heading"><h3>Применить к</h3></div>
+            <div id="scope" class="scope" role="group" aria-label="Область применения"></div>
+            <div class="field-heading profiles-heading">
+              <h3>Целевой профиль</h3>
+              <button
+                type="button"
+                id="auto"
+                class="text-button"
+                title="Подобрать профиль и яркость по выбранным мониторам"
+              >
+                <i data-icon="sparkles"></i>Автоподбор
+              </button>
+            </div>
+            <div class="preset-list" id="presets" role="group" aria-label="Целевой профиль"></div>
+            <div class="luminance">
+              <div class="field-heading">
+                <label for="brightness" class="brightness-label"
+                  ><i data-icon="sun"></i>Яркость</label
+                >
+                <div class="number-control">
+                  <input
+                    id="brightness-number"
+                    aria-label="Яркость в процентах"
+                    inputmode="numeric"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value="70"
+                  /><span>%</span>
+                </div>
+              </div>
+              <input
+                type="range"
+                id="brightness"
+                min="0"
+                max="100"
+                value="70"
+                step="1"
+                aria-label="Яркость выбранных мониторов"
+                style="--amount: 70%"
+              />
+              <div class="range-labels" aria-hidden="true">
+                <span>0%</span><span>50%</span><span>100%</span>
+              </div>
+              <p class="level-hint">
+                Расчётный уровень <span class="hint-separator">/</span>
+                <button type="button" id="suggested" title="Вернуть рекомендованную яркость">
+                  70 %
+                </button>
+                <span
+                  id="brightness-mode"
+                  class="brightness-mode"
+                  title="Способ регулировки яркости выбранных дисплеев"
+                  >Видеосигнал</span
+                >
+              </p>
+            </div>
+          </div>
+          <div class="settings-actions">
+            <button type="button" id="apply" class="primary-button" disabled>
+              <i data-icon="check"></i><span>Применить настройки</span></button
+            ><button type="button" id="undo" class="undo-button" disabled>
+              <i data-icon="undo"></i><span>Отменить изменения</span>
+            </button>
+          </div>
+        </section>
+      </section>
+      <section id="profiles-page" class="alternate-page" aria-label="Библиотека профилей" hidden>
+        <div id="profile-library" class="profile-library"></div>
+        <div class="note-box">
+          <i data-icon="info"></i>
+          <p>
+            <strong>Как работает подбор?</strong> Spectra учитывает паспортные параметры дисплеев и
+            текущие уровни видеосигнала. Выберите ориентир, а затем проверьте результат в
+            предпросмотре. Для точного соответствия стандарту нужен колориметр.
+          </p>
+        </div>
+      </section>
+      <section id="history-page" class="alternate-page" aria-label="История операций" hidden>
+        <div class="panel" id="history-list"></div>
+      </section>
+    </main>
+    <footer class="container footer">
+      <div class="footer-left">
+        <span class="status-dot" id="ready-dot"></span
+        ><span id="footer-status" role="status">Подключение к студии…</span>
+      </div>
+      <div class="footer-right">
+        <span class="footer-mark" aria-hidden="true">▰</span> Spectra Engine
+        <span class="version">v1.0</span>
+      </div>
+    </footer>
+    <dialog id="info-dialog" class="dialog" aria-labelledby="dialog-title">
+      <div class="dialog-heading">
+        <div class="dialog-kicker">
+          <img src="/assets/brand.svg" alt="" width="22" height="22" /> SPECTRA STUDIO
+        </div>
+        <button type="button" class="icon-button" data-close aria-label="Закрыть">
+          <i data-icon="close"></i>
+        </button>
+      </div>
+      <div id="dialog-content"></div>
+    </dialog>
+    <dialog id="zoom-dialog" class="dialog zoom-dialog" aria-labelledby="zoom-title">
+      <div class="panel-heading">
+        <div class="heading-group">
+          <i data-icon="split"></i>
+          <h2 id="zoom-title">Предпросмотр</h2>
+        </div>
+        <button
+          type="button"
+          data-close
+          class="icon-button"
+          aria-label="Закрыть развёрнутый предпросмотр"
+        >
+          <i data-icon="close"></i>
+        </button>
+      </div>
+      <div id="zoom-home"></div>
+      <div class="zoom-caption"><span id="zoom-caption"></span><span>Esc — закрыть</span></div>
+    </dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden>
+      <span id="toast-icon"></span><span id="toast-text"></span
+      ><button type="button" class="icon-button" id="dismiss-toast" aria-label="Скрыть уведомление">
+        <i data-icon="close"></i>
+      </button>
+    </div>
+    <svg aria-hidden="true" class="filter-defs" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="filter-before" color-interpolation-filters="sRGB">
+          <feComponentTransfer id="transfer-before">
+            <feFuncR type="table" />
+            <feFuncG type="table" />
+            <feFuncB type="table" />
+          </feComponentTransfer>
+        </filter>
+        <filter id="filter-after" color-interpolation-filters="sRGB">
+          <feComponentTransfer id="transfer-after">
+            <feFuncR type="table" />
+            <feFuncG type="table" />
+            <feFuncB type="table" />
+          </feComponentTransfer>
+        </filter>
+      </defs>
+    </svg>
+  </body>
+</html>
