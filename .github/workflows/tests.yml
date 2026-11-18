@@ -15,8 +15,8 @@ jobs:
       PYTHONUTF8: '1'
       SPECTRA_NO_PAUSE: '1'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
       - name: Install Qt runtime and exercise the native UI
@@ -29,32 +29,10 @@ jobs:
           python -m unittest discover -v
       - name: Install with the batch launcher from a different working directory
         if: runner.os == 'Windows'
-        shell: cmd
-        run: |
-          cd /d "%RUNNER_TEMP%"
-          call "%GITHUB_WORKSPACE%\Start-Spectra.bat" --check
-      - name: Reuse the checkout environment offline and test Qt Widgets
+        run: python .github/scripts/check_launcher.py checkout
+      - name: Run the native tests in the provisioned environment
         if: runner.os == 'Windows'
-        shell: cmd
-        env:
-          PIP_NO_INDEX: '1'
-        run: |
-          call Start-Spectra.bat --check
-          if errorlevel 1 exit /b 1
-          .venv\Scripts\python.exe -m unittest discover -v
+        run: .venv/Scripts/python.exe -m unittest discover -v
       - name: Download and reuse the app from just one .bat file
         if: runner.os == 'Windows' && !github.event.repository.private
-        shell: pwsh
-        run: |
-          $dest = Join-Path $env:RUNNER_TEMP 'Студия с пробелами'
-          New-Item -ItemType Directory -Force $dest | Out-Null
-          Copy-Item Start-Spectra.bat $dest
-          $launcher = Join-Path $dest 'Start-Spectra.bat'
-          & $launcher --check
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $stamp = Join-Path $dest '.venv\spectra-build.txt'
-          $first = (Get-Item $stamp).LastWriteTimeUtc
-          $env:PIP_NO_INDEX = '1'
-          & $launcher --check
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if ((Get-Item $stamp).LastWriteTimeUtc -ne $first) { throw 'Unnecessary reinstallation' }
+        run: python .github/scripts/check_launcher.py standalone

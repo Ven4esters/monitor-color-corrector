@@ -6,6 +6,7 @@ for /f "tokens=2 delims=:" %%C in ('chcp') do set "SPECTRA_OLD_CP=%%C"
 chcp 65001 >nul
 set "PYTHONHOME="
 set "PYTHONPATH="
+set "PYTHONUTF8=1"
 set "PIP_DISABLE_PIP_VERSION_CHECK=1"
 set "PIP_REQUIRE_VIRTUALENV=true"
 set "VPY=.venv\Scripts\python.exe"
@@ -45,7 +46,7 @@ goto find_python
 
 :create_env
 echo [1/3] Создаю изолированное окружение .venv ...
-"%BASE%" %BASE_ARGS% -I -m venv ".venv"
+"%BASE%" %BASE_ARGS% -I -X utf8 -m venv ".venv"
 if errorlevel 1 goto env_failed
 
 :check_env
@@ -76,12 +77,12 @@ goto launch
 
 :install
 echo [2/3] Устанавливаю приложение, PySide6 и ресурсы. Для первого запуска нужен интернет.
-"%VPY%" -I -m pip --version >nul 2>&1
+"%VPY%" -I -X utf8 -m pip --version >nul 2>&1
 if not errorlevel 1 goto pip_ready
-"%VPY%" -I -m ensurepip --upgrade
+"%VPY%" -I -X utf8 -m ensurepip --upgrade
 if errorlevel 1 goto install_failed
 :pip_ready
-"%VPY%" -I -m pip install --disable-pip-version-check --only-binary=PySide6-Essentials,shiboken6 %EDITABLE% "%SPEC%"
+"%VPY%" -I -X utf8 -m pip install --disable-pip-version-check --only-binary=PySide6-Essentials,shiboken6 %EDITABLE% "%SPEC%"
 if errorlevel 1 goto install_failed
 call :verify
 if errorlevel 1 goto install_failed
@@ -90,7 +91,7 @@ if errorlevel 1 goto env_failed
 
 :launch
 echo [3/3] Запускаю настольное окно Spectra Studio ...
-"%VPY%" -I -m spectra.desktop %*
+"%VPY%" -I -X utf8 -m spectra.desktop %*
 set "RC=%errorlevel%"
 if "%RC%"=="0" goto finish
 echo Приложение завершилось с ошибкой. Сообщение выше поможет определить причину.
