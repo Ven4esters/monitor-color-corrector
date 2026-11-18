@@ -436,7 +436,7 @@ $("mode").onclick = () => {
   if (data.demo)
     info(
       "Демонстрационный режим",
-      `<p>${esc(data.notice)}</p><p>Два виртуальных монитора позволяют проверить профили, яркость и откат. Физические дисплеи вашего компьютера не изменяются.</p><p class="dialog-note">Чтобы настроить свои мониторы, скачайте приложение для Python 3.12. Установка пакетов не требуется.</p><a class="secondary-button download-app" href="/download/Spectra-Studio.pyz" download="Spectra-Studio.pyz">${icon("download")}Скачать приложение</a><p>Запуск в Windows:</p><code>py -3.12 Spectra-Studio.pyz</code><p>Запуск в Linux (X11):</p><code>python3.12 Spectra-Studio.pyz</code>`,
+      `<p>${esc(data.notice)}</p><p>Два виртуальных монитора позволяют проверить профили, яркость и откат. Физические дисплеи вашего компьютера не изменяются.</p><p class="dialog-note"><strong>Настольное окно для Windows</strong><br>Сохраните файл в отдельную папку и запустите двойным щелчком. Он подготовит Python 3.12, окружение и PySide6. Первый запуск требует интернета.</p><a class="secondary-button download-app" href="https://github.com/Ven4esters/monitor-color-corrector/raw/refs/heads/arena/4aba3c52-monitor-color-corrector/Start-Spectra.bat" target="_blank" rel="noopener noreferrer">${icon("download")}Скачать Start-Spectra.bat</a><p><strong>Веб-версия без Qt</strong><br>Один файл для уже установленного Python 3.12.</p><a class="secondary-button download-app" href="/download/Spectra-Studio.pyz" download="Spectra-Studio.pyz">${icon("download")}Скачать .pyz</a><code>py -3.12 Spectra-Studio.pyz</code><p>В Linux (X11): <strong>python3.12 Spectra-Studio.pyz</strong></p>`,
     );
   else
     info(

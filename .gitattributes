@@ -1,0 +1,2 @@
+# Preserve DOS line endings in the raw, single-file Windows download as well as checkouts.
+Start-Spectra.bat -text diff whitespace=cr-at-eol
