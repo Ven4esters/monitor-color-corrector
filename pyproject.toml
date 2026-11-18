@@ -4,11 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "spectra-display-studio"
-version = "1.0.0"
+version = "1.1.0"
 description = "Локальная студия согласования цвета и яркости мониторов"
 requires-python = ">=3.12"
 readme = "README.md"
 dependencies = []
+
+[project.optional-dependencies]
+desktop = ["PySide6-Essentials==6.10.3"]
+
+[project.gui-scripts]
+spectra-desktop = "spectra.desktop.__main__:main"
 
 [project.scripts]
 spectra = "spectra.__main__:main"
@@ -17,7 +23,7 @@ spectra = "spectra.__main__:main"
 include = ["spectra*"]
 
 [tool.setuptools.package-data]
-spectra = ["web/*", "web/assets/*", "web/assets/fonts/*"]
+spectra = ["web/*", "web/assets/*", "web/assets/fonts/*", "desktop/*.qss", "desktop/*.svg"]
 
 [tool.ruff]
 target-version = "py312"
